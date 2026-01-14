@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="FlowTokenizer: Hierarchical Representation Alignment Learning of Diffusion Transformers for Neural Audio Codec"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FlowTokenizer</title> 
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body" style="padding-bottom: 24px;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Hierarchical Representation Alignment Learning of Diffusion Transformers for Neural Audio Codec</h1>
+          <div class="is-size-4 publication-authors"> 
+            <span class="author-block">Anonymous</span>
+          </div>  
+
+          <div class="column has-text-centered">
+            <div class="publication-links"> 
+              <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-info">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>Source Code (TBA) </span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> 
+<div style="height: 10px;"></div>
+
+
+
+<section class="section" style="padding-top: 0px;">
+    <div class="container is-max-desktop"> 
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p> Despite recent progress in diffusion and conditional flow matching (CFM) models for low-resolution domains such as latent representations, their application to high-resolution data like raw waveform signals remains underexplored. Generative adversarial networks (GANs) have been the dominant approach in neural vocoder and neural audio codecs for realistic waveform generation. However, under low-bitrate conditions, these models suffer from degraded performance due to information loss caused by heavy compression and quantization, often resulting in mispronunciations.
+              To address the aforementioned problem, we first leverage CFM to iteratively generate raw waveform in an extremely low-bitrate scenario. We then introduce hierarchical representation alignment learning (REPA-H) to enable efficient and robust CFM training. Furthermore, we propose dense vector quantization (DVQ), a novel factorized quantization method using a single quantizer. Our model, FlowTokenizer, outperforms state-of-the-art neural audio codecs in audio quality and semantic intelligibility under low-bitrate conditions, using only 25 tokens per second for 24 kHz waveform generation. 
+            </p>
+          </div> 
+        </div>
+      </div>  
+    </div>
+</section> 
+
+<section id="s1" class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+        <div class="column is-full-width"> 
+          <h2 class="title is-3">Audio Samples</h2> 
+          <p></p>
+        </div> 
+      </div>
+      <div class="columns is-centered has-text-centered"> 
+        <table class="table" style="background-color: transparent;">
+          <thead>
+            <tr> 
+              <th align="center"><strong>GT<br>(24 kHz)</strong></th>
+              <th align="center" style="color: hsl(204, 92%, 37%);"><strong>FlowTokenizer + Prompt (3s) <br>(24 kHz, <br>25 TPS)</strong></th>
+              <th align="center" style="color: hsl(204, 92%, 37%);"><strong>FlowTokenizer<br>(24 kHz, <br>25 TPS)</strong></th>
+
+              <th align="center"><strong>WavTokenizer<br>(24 kHz, <br>40 TPS) </strong></th>
+              <th align="center"><strong>WavTokenizer<br>(24 kHz, <br>75 TPS) </strong></th>
+              <th align="center"><strong>Mimi<br>(24 kHz, <br>100 TPS) </strong></th>
+              <th align="center"><strong>EnCodec<br>(24 kHz, <br>600 TPS) </strong></th>
+              <th align="center"><strong>DAC<br>(24 kHz, <br>600 TPS) </strong></th>
+              <th align="center"><strong>SpeechTokenizer<br>(16 kHz, <br>400 TPS)</strong></th>
+              <th align="center"><strong>BigCodec<br>(16 kHz, <br>80 TPS)</strong></th>
+              <th align="center"><strong>X-codec2<br>(16 kHz, <br>50 TPS)</strong></th>
+              <th align="center"><strong>StableCodec<br>(16 kHz, <br>50 TPS)</strong></th>
+              <th align="center"><strong>StableCodec<br>(16 kHz, <br>25 TPS)</strong></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/84_121123_000009_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/84_121123_000009_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/84_121123_000009_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/116_288047_000002_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/116_288047_000002_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/116_288047_000002_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/174_84280_000015_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/174_84280_000015_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/174_84280_000015_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/251_136532_000020_000004.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/251_136532_000020_000004.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/251_136532_000020_000004.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/652_130737_000031_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/652_130737_000031_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/652_130737_000031_000001.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/700_122867_000033_000003.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/700_122867_000033_000003.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/700_122867_000033_000003.wav" type="audio/wav"></audio></td>
+            </tr>
+
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1255_90413_000023_000001.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1272_141231_000007_000003.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1462_170142_000029_000001.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1585_131718_000025_000009.wav" type="audio/wav"></audio></td>
+            </tr>
+
+          <thead>
+            <tr> 
+              <th align="center"><strong>GT<br>(24 kHz)</strong></th>
+              <th align="center" style="color: hsl(204, 92%, 37%);"><strong>FlowTokenizer + Prompt (3s) <br>(24 kHz, <br>25 TPS)</strong></th>
+              <th align="center" style="color: hsl(204, 92%, 37%);"><strong>FlowTokenizer<br>(24 kHz, <br>25 TPS)</strong></th>
+
+              <th align="center"><strong>WavTokenizer<br>(24 kHz, <br>40 TPS) </strong></th>
+              <th align="center"><strong>WavTokenizer<br>(24 kHz, <br>75 TPS) </strong></th>
+              <th align="center"><strong>Mimi<br>(24 kHz, <br>100 TPS) </strong></th>
+              <th align="center"><strong>EnCodec<br>(24 kHz, <br>600 TPS) </strong></th>
+              <th align="center"><strong>DAC<br>(24 kHz, <br>600 TPS) </strong></th>
+              <th align="center"><strong>SpeechTokenizer<br>(16 kHz, <br>400 TPS)</strong></th>
+              <th align="center"><strong>BigCodec<br>(16 kHz, <br>80 TPS)</strong></th>
+              <th align="center"><strong>X-codec2<br>(16 kHz, <br>50 TPS)</strong></th>
+              <th align="center"><strong>StableCodec<br>(16 kHz, <br>50 TPS)</strong></th>
+              <th align="center"><strong>StableCodec<br>(16 kHz, <br>25 TPS)</strong></th>
+            </tr>
+          </thead>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1630_141772_000000_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1686_142278_000042_000001.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1701_141760_000013_000003.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1919_142785_000063_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1988_24833_000059_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/1993_147149_000051_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/2035_147961_000011_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/2277_149874_000007_000001.wav" type="audio/wav"></audio></td>
+            </tr>
+
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/2412_153954_000004_000005.wav" type="audio/wav"></audio></td>
+            </tr>
+
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/2506_13150_000022_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+             <thead>
+            <tr> 
+              <th align="center"><strong>GT<br>(24 kHz)</strong></th>
+              <th align="center" style="color: hsl(204, 92%, 37%);"><strong>FlowTokenizer + Prompt (3s) <br>(24 kHz, <br>25 TPS)</strong></th>
+              <th align="center" style="color: hsl(204, 92%, 37%);"><strong>FlowTokenizer<br>(24 kHz, <br>25 TPS)</strong></th>
+
+              <th align="center"><strong>WavTokenizer<br>(24 kHz, <br>40 TPS) </strong></th>
+              <th align="center"><strong>WavTokenizer<br>(24 kHz, <br>75 TPS) </strong></th>
+              <th align="center"><strong>Mimi<br>(24 kHz, <br>100 TPS) </strong></th>
+              <th align="center"><strong>EnCodec<br>(24 kHz, <br>600 TPS) </strong></th>
+              <th align="center"><strong>DAC<br>(24 kHz, <br>600 TPS) </strong></th>
+              <th align="center"><strong>SpeechTokenizer<br>(16 kHz, <br>400 TPS)</strong></th>
+              <th align="center"><strong>BigCodec<br>(16 kHz, <br>80 TPS)</strong></th>
+              <th align="center"><strong>X-codec2<br>(16 kHz, <br>50 TPS)</strong></th>
+              <th align="center"><strong>StableCodec<br>(16 kHz, <br>50 TPS)</strong></th>
+              <th align="center"><strong>StableCodec<br>(16 kHz, <br>25 TPS)</strong></th>
+            </tr>
+          </thead>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/2803_154320_000017_000004.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/2902_9008_000009_000001.wav" type="audio/wav"></audio></td>
+            </tr>
+            
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/3000_15664_000029_000002.wav" type="audio/wav"></audio></td>
+            </tr>            
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/3660_6517_000036_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/3752_4943_000056_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/3915_98647_000018_000006.wav" type="audio/wav"></audio></td>
+            </tr>
+
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/4323_18416_000079_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/4831_29134_000001_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/5543_27761_000065_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/5694_64038_000015_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+            <thead>
+            <tr> 
+              <th align="center"><strong>GT<br>(24 kHz)</strong></th>
+              <th align="center" style="color: hsl(204, 92%, 37%);"><strong>FlowTokenizer + Prompt (3s) <br>(24 kHz, <br>25 TPS)</strong></th>
+              <th align="center" style="color: hsl(204, 92%, 37%);"><strong>FlowTokenizer<br>(24 kHz, <br>25 TPS)</strong></th>
+
+              <th align="center"><strong>WavTokenizer<br>(24 kHz, <br>40 TPS) </strong></th>
+              <th align="center"><strong>WavTokenizer<br>(24 kHz, <br>75 TPS) </strong></th>
+              <th align="center"><strong>Mimi<br>(24 kHz, <br>100 TPS) </strong></th>
+              <th align="center"><strong>EnCodec<br>(24 kHz, <br>600 TPS) </strong></th>
+              <th align="center"><strong>DAC<br>(24 kHz, <br>600 TPS) </strong></th>
+              <th align="center"><strong>SpeechTokenizer<br>(16 kHz, <br>400 TPS)</strong></th>
+              <th align="center"><strong>BigCodec<br>(16 kHz, <br>80 TPS)</strong></th>
+              <th align="center"><strong>X-codec2<br>(16 kHz, <br>50 TPS)</strong></th>
+              <th align="center"><strong>StableCodec<br>(16 kHz, <br>50 TPS)</strong></th>
+              <th align="center"><strong>StableCodec<br>(16 kHz, <br>25 TPS)</strong></th>
+            </tr>
+          </thead>
+            <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/5895_34622_000029_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/6123_59186_000008_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/6267_53049_000007_000001.wav" type="audio/wav"></audio></td>
+            </tr>
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/6295_64301_000010_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/6313_66129_000081_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/6455_67803_000038_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/6841_88294_000048_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/7697_105815_000048_000002.wav" type="audio/wav"></audio></td>
+            </tr>
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/8254_84205_000029_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+              <tr>   
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/gt/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft_prompt/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/ft/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>              
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_40/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/wt_75/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/mimi_8/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/encodec/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/dac_8/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/st_8/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/bigcodec/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/xcodec/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq2/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+                <td width="10%" style="text-align: center;"><audio controls controlslist="nodownload"><source src="samples/stable_nq1/8297_275155_000037_000000.wav" type="audio/wav"></audio></td>
+            </tr>
+          </tbody>
+        </table> 
+    </div>
+  </div>
+</section>
+<div style="height: 20px;"></div>
+ 
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Licenses</h2>
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            Website source code based on the <a
+            href="https://github.com/nerfies/nerfies.github.io">Nerfies</a> project page.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+ 
+  
+  <script> 
+    window.onscroll = function() {scrollFunction()};
+  
+    function scrollFunction() {
+      var topBtn = document.getElementById("topBtn");
+      if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        topBtn.style.display = "block";
+      } else {
+        topBtn.style.display = "none";
+      }
+    }
+   
+    function scrollToTop() {
+      document.body.scrollTop = 0;            // Safari
+      document.documentElement.scrollTop = 0; // Chrome,IE
+    }
+  </script>
+  
+<script type="text/javascript">
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+</script>
